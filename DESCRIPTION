@@ -1,0 +1,30 @@
+Package: mosaicresid
+Type: Package
+Title: Residual-Shaded Mosaic Plots for 'ggplot2'
+Version: 0.1.1
+Authors@R: person("Sam", "Butler", email = "swmbutler@gmail.com", role = c("aut", "cre"))
+Description: A 'ggplot2'-native alternative to the shaded mosaic plots
+    drawn by mosaicplot() in base 'R'. geom_mosaic_resid() maps two
+    categorical variables with ordinary 'ggplot2' aesthetics, recursively
+    partitions the unit square into tiles sized by their joint proportions,
+    computes Pearson, deviance, or Freeman-Tukey residuals against a two-way
+    independence model, and maps the residuals to fill color. It works on raw
+    data, already aggregated counts, or contingency tables, and the tile
+    geometry and residuals are also returned as a data frame by
+    compute_mosaic_residuals().
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: ggplot2 (>= 3.4.0), dplyr, tibble, purrr, rlang
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown, S7
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+URL: https://github.com/sbutler22/geom_mosaic
+BugReports: https://github.com/sbutler22/geom_mosaic/issues
+Config/roxygen2/version: 8.1.0
+NeedsCompilation: no
+Packaged: 2026-11-02 14:56:29 UTC; samuelbutler
+Author: Sam Butler [aut, cre]
+Maintainer: Sam Butler <swmbutler@gmail.com>
+Repository: CRAN
+Date/Publication: 2026-11-20 13:00:08 UTC

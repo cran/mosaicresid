@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>mosaicresid vs base R mosaicplot() vs ggmosaic2</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">mosaicresid vs base R mosaicplot() vs
+ggmosaic2</h1>
+
+
+
+<div id="why-this-document-exists" class="section level2">
+<h2>Why this document exists</h2>
+<p>This package set out to fill a real, verifiable gap: at the time this
+project started, no actively-maintained, CRAN-available package offered
+<code>ggplot2</code>-native mosaic plots with statistical
+(residual-based) shading. The original <code>ggmosaic</code> package had
+no shading support at all and was archived in late 2025. Base R’s
+<code>mosaicplot(shade = TRUE)</code> and the
+<code>vcd</code>/<code>vcdExtra</code> packages have shading, but are
+base-graphics, not grammar-of-graphics layers.</p>
+<p>Partway through this project, a new package –
+<strong><code>ggmosaic2</code></strong> (Michael Friendly, with the
+original <code>ggmosaic</code> authors credited as co-authors),
+published to CRAN on 2026-09-16 – closed much of that gap directly,
+including full n-way support. As a <em>production recommendation
+today</em>, <code>ggmosaic2</code> is the more complete package. This
+document exists to be honest about that, and to state exactly what is
+and isn’t different about this package.</p>
+</div>
+<div id="feature-by-feature-comparison" class="section level2">
+<h2>Feature-by-feature comparison</h2>
+<table>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Base R <code>mosaicplot()</code></th>
+<th><code>ggmosaic2</code> (CRAN)</th>
+<th><code>mosaicresid</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Input</strong></td>
+<td>pre-built <code>table()</code> only</td>
+<td>raw data + <code>aes(x = product(...))</code></td>
+<td>raw <strong>or</strong> pre-aggregated data, plain
+<code>aes(x =, y =)</code></td>
+</tr>
+<tr class="even">
+<td><strong>API idiom</strong></td>
+<td>base graphics function call</td>
+<td><code>product()</code>-wrapped <code>ggplot2</code> aes</td>
+<td>plain <code>ggplot2</code> aes, no wrapper</td>
+</tr>
+<tr class="odd">
+<td><strong>n-way support</strong></td>
+<td><code>margin</code> (loglinear model choice)</td>
+<td>full, via <code>glm(poisson)</code> + formula/shortcut
+<code>expected =</code></td>
+<td>none – explicit 2-way scope cut (see below)</td>
+</tr>
+<tr class="even">
+<td><strong>Residual types</strong></td>
+<td>pearson / deviance / FT</td>
+<td>pearson only</td>
+<td>pearson / deviance / FT (matches base R exactly)</td>
+</tr>
+<tr class="odd">
+<td><strong>Split direction</strong></td>
+<td><code>dir</code> override</td>
+<td><code>divider</code> (vspine/hspine/vbar/hbar – 4 options)</td>
+<td><code>dir</code> override (v/h – 2 options, a subset of their
+4)</td>
+</tr>
+<tr class="even">
+<td><strong>Default color scale</strong></td>
+<td>discrete HSV bins</td>
+<td>continuous <code>scale_fill_gradient2()</code></td>
+<td>continuous <code>scale_fill_gradient2()</code> – same design choice,
+arrived at independently</td>
+</tr>
+<tr class="odd">
+<td><strong>Labels</strong></td>
+<td>axis-side, fixed position</td>
+<td><code>ggrepel</code>-based collision handling</td>
+<td>in-tile, size-threshold suppression</td>
+</tr>
+<tr class="even">
+<td><strong>Composability</strong></td>
+<td>none (base graphics)</td>
+<td>full <code>ggplot2</code> (facets, themes, <code>+</code>)</td>
+<td>full <code>ggplot2</code> (facets, themes, <code>+</code>)</td>
+</tr>
+<tr class="odd">
+<td><strong>Codebase</strong></td>
+<td>1 function, base R</td>
+<td>~3,500 lines, 21 files, 9 imported packages</td>
+<td>~800 lines, 13 files, 5 imported packages</td>
+</tr>
+<tr class="even">
+<td><strong>Extras</strong></td>
+<td>–</td>
+<td><code>facet_mosaic()</code>, plotly export, Shiny app</td>
+<td>tidy intermediate output (<code>compute_mosaic_residuals()</code>
+returns an inspectable data frame)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="is-aesx-y-vs-product-a-real-differentiator" class="section level2">
+<h2>Is <code>aes(x =, y =)</code> vs <code>product()</code> a real
+differentiator?</h2>
+<p>Yes, but as a trade-off, not an unqualified win.</p>
+<p><code>ggplot2</code> only exposes two position-aesthetic slots.
+<code>ggmosaic2</code>’s <code>product()</code> exists specifically to
+pack an arbitrary-length variable list into the single <code>x</code>
+slot, so one interface scales from 1 variable up to n (plus
+<code>conds</code> for conditioning variables).
+<code>mosaicresid</code>’s plain <code>aes(x =, y =)</code> is more
+idiomatic – it reads like every other <code>ggplot2</code> geom, with no
+wrapper function to learn – but that simplicity is purchased by being
+two-variable-only. It would not generalize past two variables without
+introducing something <code>product()</code>-shaped of its own.</p>
+</div>
+<div id="defending-the-one-deliberate-gap-n-way-support" class="section level2">
+<h2>Defending the one deliberate gap: n-way support</h2>
+<p>This is the only gap left unclosed by design, rather than by
+oversight. Past two variables, “expected count” stops having a single
+unambiguous definition – complete independence, joint independence,
+conditional independence, and all-two-way-associations are different,
+non-equivalent loglinear models, and the caller has to choose one.
+<code>mosaicresid</code> ships a narrow, well-defined two-way
+implementation, verified to floating-point precision against base R’s
+own residual formulas (see the package’s test suite,
+<code>tests/testthat/test-residuals.R</code>), with an explicit error
+that fails loudly rather than silently computing a plausible-looking but
+wrong number for an ambiguous n-way case – naming
+<code>stats::loglin()</code> and <code>glm(family = poisson)</code> as
+the path forward. <code>ggmosaic2</code> ended up shipping exactly that
+<code>glm(family = poisson)</code> approach for its n-way support, which
+is a reasonable outside confirmation that the scoping judgment here was
+architecturally correct, even though this package doesn’t implement
+it.</p>
+</div>
+<div id="everything-else-closed" class="section level2">
+<h2>Everything else: closed</h2>
+<p>Every other mechanical gap identified during development has been
+closed and verified:</p>
+<ul>
+<li><strong><code>dir</code></strong> (split direction override) –
+implemented, matches base R’s default alternating behavior when unset,
+and verified to correctly swap split roles when overridden.</li>
+<li><strong><code>type</code></strong> (pearson / deviance /
+Freeman-Tukey residuals) – implemented using base R’s own formulas (read
+directly from <code>graphics:::mosaicplot.default</code>), verified to
+match base R to floating-point precision for all three.</li>
+<li><strong><code>sort</code></strong> – turned out not to be a real gap
+once examined. Base R needs <code>sort</code> because <code>x</code> is
+a fixed pre-built table; this package’s <code>aes(x =, y =)</code>
+mapping <em>is</em> the permutation mechanism base R’s <code>sort</code>
+provides after the fact – swap which variable is <code>x</code> and
+which is <code>y</code> to get the same effect, with no separate
+parameter needed.</li>
+</ul>
+</div>
+<div id="bottom-line" class="section level2">
+<h2>Bottom line</h2>
+<p><code>ggmosaic2</code> is the more feature-complete package, and is
+the right choice for someone who needs n-way support,
+<code>ggrepel</code>-based label collision handling, or a Shiny app, in
+production, today. <code>mosaicresid</code> matches or exceeds it on the
+specific two-way, residual-shaded surface – all three residual types
+where <code>ggmosaic2</code> has one, verified to base R’s own formulas
+to the last bit – with a simpler API and a fraction of the code, and
+remains a legitimate, from-scratch statement of what true mosaic-plot
+geometry and independence-residual shading look like as a
+<code>ggplot2</code> layer.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
